@@ -1,9 +1,22 @@
 import streamlit as st
+import pandas as pd
 import plotly.express as px
 
 from logic.loader import load_csv
 from logic.nutrition import calculate_nutrition, aggregate
 from logic.mbg import group_age, group_up, get_standard, evaluasi_mbg
+
+def load_csv_safe(path):
+    df = pd.read_csv(
+        path,
+        delimiter=';',
+        engine='python',
+        encoding='utf-8-sig',  
+        on_bad_lines='warn'
+    )
+
+    df.columns = [col.strip() for col in df.columns]
+    return df
 
 tkpi = load_csv("data/clean_data.csv")
 food_cat = load_csv("data/food_category.csv")
