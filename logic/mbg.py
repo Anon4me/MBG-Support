@@ -5,7 +5,7 @@ edu_df = pd.read_csv("data/education_level.csv")
 std_df = pd.read_csv("data/standar_mbg.csv")
 
 
-def resolve_age(age, age_df):
+def group_age(age, age_df):
     row = age_df[
         (age_df["age_min"] <= age) &
         (age_df["age_max"] >= age)
@@ -21,7 +21,7 @@ def resolve_age(age, age_df):
     )
 
 
-def resolve_group(level, grade, edu_df, gender="all"):
+def group_up(level, grade, edu_df, gender="all"):
     df = edu_df[
         (edu_df["level"] == level) &
         (edu_df["class_min"] <= grade) &
@@ -47,7 +47,7 @@ def get_standard(group_id, std_df):
     return row.iloc[0]
 
 
-def evaluate(total, std):
+def evaluasi_mbg(total, std):
     return {
         "energy_status": (
             "LOW" if total["energy"] < std["min_energy_kcal"]
@@ -69,10 +69,10 @@ if __name__ == "__main__":
         "fiber": 18
     }
 
-    level, grade, gender = resolve_age(age, age_df)
-    group_id = resolve_group(level, grade, edu_df, gender)
+    level, grade, gender = group_age(age, age_df)
+    group_id = group_up(level, grade, edu_df, gender)
     standard = get_standard(group_id, std_df)
-    result = evaluate(total_nutrition, standard)
+    result = evaluasi_mbg(total_nutrition, standard)
 
     print("Education Level:", level)
     print("Grade:", grade)

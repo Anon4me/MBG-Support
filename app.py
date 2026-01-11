@@ -3,7 +3,7 @@ import plotly.express as px
 
 from logic.loader import load_csv
 from logic.nutrition import calculate_nutrition, aggregate
-from logic.mbg import resolve_age, resolve_group, get_standard, evaluate_mbg
+from logic.mbg import group_age, group_up, get_standard, evaluasi_mbg
 
 tkpi = load_csv("data/clean_data.csv")
 food_cat = load_csv("data/food_category.csv")
@@ -60,14 +60,14 @@ if st.button("Reset Menu"):
 
 # evaluasi
 if st.session_state.menu_items:
-    level, grade, default_gender = resolve_age(age, age_df)
+    level, grade, default_gender = group_age(age, age_df)
     effective_gender = gender if gender != "all" else default_gender
 
-    group_id = resolve_group(level, grade, edu_df, effective_gender)
+    group_id = group_up(level, grade, edu_df, effective_gender)
     std = get_standard(group_id, std_df)
 
     total = aggregate(st.session_state.menu_items)
-    result = evaluate_mbg(total, std)
+    result = evaluasi_mbg(total, std)
 
     st.divider()
     st.subheader("Hasil Evaluasi Gizi")
