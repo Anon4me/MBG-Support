@@ -1,19 +1,4 @@
 import pandas as pd
-from loguru import logger
-
-
-def load_csv(path: str) -> pd.DataFrame:
-    try:
-        df = pd.read_csv(path)
-        if df.empty:
-            raise ValueError("CSV kosong")
-
-        df.columns = df.columns.str.strip()
-        logger.info(f"Loaded {path} ({len(df)} rows)")
-        return df
-    except Exception as e:
-        logger.exception(f"Gagal load CSV: {path}")
-        raise RuntimeError(e)
 
 
 def _to_number(val):
@@ -35,7 +20,7 @@ def _to_bool(val):
     return False
 
 
-def normalize_gram(gram):
+def normalisasi_gram(gram):
     try:
         gram = float(gram)
     except Exception:
@@ -47,33 +32,27 @@ def normalize_gram(gram):
     return gram
 
 
-def calculate_nutrition(food_id, gram, clean_df, category_df):
+def perhitungan_nutrisi(food_id, gram, clean_df, category_df):
     """
-    Default: gram = 100
-    Custom gram allowed
+    Menghitung nutrisi makanan berdasarkan gram.
     """
-    gram = normalize_gram(gram)
+    gram = normalisasi_gram(gram)
 
-    row = clean_df[clean_df["Id"] == food_id]
+    row = clean_df[clean_df["id"] == food_id]
     if row.empty:
         raise ValueError(f"Food ID tidak ditemukan: {food_id}")
 
-    cat = category_df[category_df["Id"] == food_id]
+    cat = category_df[category_df["id"] == food_id]
     is_animal = _to_bool(cat.iloc[0]["is_animal"]) if not cat.empty else False
 
     factor = gram / 100.0
 
-    protein = _to_number(row.iloc[0]["Protein (g)"]) * factor
-    fat = _to_number(row.iloc[0]["Lemak (g)"]) * factor
-    carb = _to_number(row.iloc[0]["Karbohidrat (g)"]) * factor
-    fiber = _to_number(row.iloc[0]["Serat (g)"]) * factor
+    protein = _to_number(row.iloc[0]["protein_(g)"]) * factor
+    fat = _to_number(row.iloc[0]["lemak_(g)"]) * factor
+    carb = _to_number(row.iloc[0]["karbohidrat_(g)"]) * factor
+    fiber = _to_number(row.iloc[0]["serat_(g)"]) * factor
 
-    energy = (
-        carb * 4 +
-        protein * 4 +
-        fat * 9 +
-        fiber * 2
-    )
+    energy = carb * 4 + protein * 4 + fat * 9 + fiber * 2
 
     return {
         "energy": energy,
@@ -102,7 +81,7 @@ def aggregate(items):
     return totals
 
 
-def evaluate_mbg(total, std):
+def evaluasi_mbg(total, std):
     return {
         "energy_status": (
             "LOW" if total["energy"] < std["min_energy_kcal"]
@@ -124,20 +103,22 @@ def get_standard(group_id, std_df):
 
 
 if __name__ == "__main__":
-    clean_df = load_csv("clean_data.csv")
-    category_df = load_csv("food_category.csv")
-    std_df = load_csv("standar_mbg.csv")
+
+    clean_df = pd.read_csv("data/clean_data.csv", delimiter=";", encoding="utf-8-sig")
+    category_df = pd.read_csv("data/food_category.csv", delimiter=";", encoding="utf-8-sig")
+    std_df = pd.read_csv("data/standar_mbg.csv", delimiter=";", encoding="utf-8-sig")
+
+    clean_df.columns = [c.strip().strip('"').replace(" ", "_").lower() for c in clean_df.columns]
+    category_df.columns = [c.strip().strip('"').replace(" ", "_").lower() for c in category_df.columns]
 
     foods = [
-        calculate_nutrition(food_id=1, gram=100, clean_df=clean_df, category_df=category_df),
-        calculate_nutrition(food_id=2, gram=75, clean_df=clean_df, category_df=category_df),
-        calculate_nutrition(food_id=3, gram=120, clean_df=clean_df, category_df=category_df),
+        perhitungan_nutrisi(food_id="1", gram=100, clean_df=clean_df, category_df=category_df),
+        perhitungan_nutrisi(food_id="2", gram=75, clean_df=clean_df, category_df=category_df)
     ]
 
     total = aggregate(foods)
-
-    std = get_standard("SD_7_9_M", std_df)
-    result = evaluate_mbg(total, std)
+    std = std_df.iloc[0]  # contoh ambil baris pertama sebagai standar
+    result = evaluasi_mbg(total, std)
 
     print("TOTAL NUTRISI:", total)
     print("EVALUASI MBG:", result)

@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-from logic.nutrition import calculate_nutrition, aggregate
+from logic.nutrition import perhitungan_nutrisi, aggregate
 from logic.mbg import group_age, group_up, get_standard, evaluasi_mbg
 
 def load_csv_safe(path, delimiter=None):
@@ -45,7 +45,7 @@ if st.button("Tambah ke Menu"):
         st.error("Makanan tidak ditemukan di database")
         st.stop()
     food_id = str(row.iloc[0]["id"])
-    nutrition = calculate_nutrition(food_id=food_id, gram=gram, clean_df=tkpi, category_df=food_cat)
+    nutrition = perhitungan_nutrisi(food_id=food_id, gram=gram, clean_df=tkpi, category_df=food_cat)
     st.session_state.menu_items.append(nutrition)
     st.success(f"Ditambahkan: {food_name} ({gram:.0f} g)")
 
