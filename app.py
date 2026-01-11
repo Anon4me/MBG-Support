@@ -11,6 +11,8 @@ age_df = load_csv("data/age_group.csv")
 edu_df = load_csv("data/education_level.csv")
 std_df = load_csv("data/standar_mbg.csv")
 
+tkpi.columns = [col.strip().lower().replace('"', '').replace(" ", "_") for col in tkpi.columns]
+
 st.title("MBG Menu Evaluator")
 
 if "menu_items" not in st.session_state:
@@ -22,7 +24,7 @@ with st.sidebar:
     age = st.number_input("Usia (tahun)", min_value=3, max_value=18, value=7)
     gender = st.selectbox("Gender", ["male", "female", "all"])
 
-# menu mbg
+# menu
 st.subheader("Pilih Menu")
 
 food_list = sorted(tkpi["nama_bahan"].unique())
