@@ -4,74 +4,29 @@ import plotly.express as px
 from logic.loader import load_csv
 from logic.nutrition import calculate_nutrition, aggregate
 from logic.mbg import resolve_age, resolve_group, get_standard, evaluate_mbg
-<<<<<<< HEAD
-
 
 tkpi = load_csv("data/clean_data.csv")
 food_cat = load_csv("data/food_category.csv")
 age_df = load_csv("data/age.csv")
-=======
-
-tkpi = load_csv("data/clean_data.csv")
-food_cat = load_csv("data/food_category.csv")
-age_df = load_csv("data/age_group.csv")
->>>>>>> 2973111988d9054ce4d217ed6dc3b0b73b6372ba
 edu_df = load_csv("data/education_level.csv")
 std_df = load_csv("data/standar_mbg.csv")
 
-
 st.title("MBG Menu Evaluator")
 
+# bagian sesi
 if "menu_items" not in st.session_state:
     st.session_state.menu_items = []
 
-<<<<<<< HEAD
-
+# profil 
 with st.sidebar:
     st.header("Profil Penerima")
     age = st.number_input("Usia (tahun)", min_value=3, max_value=18, value=7)
     gender = st.selectbox("Gender", ["male", "female", "all"])
 
-
+# menu
 st.subheader("Pilih Menu")
 
-food_list = tkpi["Nama Bahan"].unique()
-food_name = st.selectbox("Nama Makanan", food_list)
-
-gram = st.number_input(
-    "Berat (gram)",
-    min_value=1.0,
-    value=100.0,
-    step=5.0
-)
-
-if st.button("Tambah ke Menu"):
-    food_id = tkpi[tkpi["Nama Bahan"] == food_name].iloc[0]["Id"]
-
-    nutrition = calculate_nutrition(
-        food_id=food_id,
-        gram=gram,
-        clean_df=tkpi,
-        category_df=food_cat
-    )
-
-    st.session_state.menu_items.append(nutrition)
-    st.success(f"Ditambahkan: {food_name} ({gram:.0f} g)")
-
-
-=======
-
-
-with st.sidebar:
-    st.header("Profil Penerima")
-    age = st.number_input("Usia (tahun)", min_value=3, max_value=18, value=7)
-    gender = st.selectbox("Gender", ["male", "female", "all"])
-
-
-
-st.subheader("Pilih Menu")
-
-food_list = tkpi["nama_bahan"].sort_values().unique()
+food_list = sorted(tkpi["nama_bahan"].unique())
 food_name = st.selectbox("Nama Makanan", food_list)
 
 gram = st.number_input(
@@ -100,16 +55,13 @@ if st.button("Tambah ke Menu"):
     st.session_state.menu_items.append(nutrition)
     st.success(f"Ditambahkan: {food_name} ({gram:.0f} g)")
 
-
->>>>>>> 2973111988d9054ce4d217ed6dc3b0b73b6372ba
 if st.button("Reset Menu"):
     st.session_state.menu_items = []
     st.rerun()
 
-
+# evaluasi
 if st.session_state.menu_items:
     level, grade, default_gender = resolve_age(age, age_df)
-
     effective_gender = gender if gender != "all" else default_gender
 
     group_id = resolve_group(level, grade, edu_df, effective_gender)
@@ -123,19 +75,11 @@ if st.session_state.menu_items:
 
     col1, col2, col3 = st.columns(3)
     col1.metric("Energi (kcal)", f"{total['energy']:.1f}", result["energy_status"])
-    col2.metric(
-        "Protein (g)",
-        f"{total['protein']:.1f}",
-        "OK" if result["protein_ok"] else "Kurang"
-    )
-    col3.metric(
-        "Serat (g)",
-        f"{total['fiber']:.1f}",
-        "OK" if result["fiber_ok"] else "Kurang"
-    )
+    col2.metric("Protein (g)", f"{total['protein']:.1f}", "OK" if result["protein_ok"] else "Kurang")
+    col3.metric("Serat (g)", f"{total['fiber']:.1f}", "OK" if result["fiber_ok"] else "Kurang")
 
     fig = px.bar(
-        x=["Energi (kcal)", "Protein (g)", "Karbohidrat (g)", "Serat (g)"],
+        x=["Energi", "Protein", "Karbohidrat", "Serat"],
         y=[
             total["energy"],
             total["protein"],
