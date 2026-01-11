@@ -1,0 +1,192 @@
+Id,Nama Bahan Makanan ,protein_type,is_animal
+FP021,"Ayam goreng church texas, dada",HEWANI,TRUE
+FP023,"Ayam goreng church texas, sayap",HEWANI,TRUE
+FP022,"Ayam goreng church,texas paha",HEWANI,TRUE
+FP024,"Ayam goreng kalasan, paha",HEWANI,TRUE
+FP025,"Ayam goreng kentucky, dada",HEWANI,TRUE
+FP026,"Ayam goreng Kentucky, paha",HEWANI,TRUE
+FP027,"Ayam goreng Kentucky,sayap",HEWANI,TRUE
+FP028,Ayam goreng mbok berek dada,HEWANI,TRUE
+FP029,"Ayam goreng pasundan, dada",HEWANI,TRUE
+FP030,"Ayam goreng pasundan, paha",HEWANI,TRUE
+FP031,"Ayam goreng pioneer, dada",HEWANI,TRUE
+FP032,"Ayam goreng sukabumi, dada",HEWANI,TRUE
+FP033,"Ayam goreng sukabumi, paha",HEWANI,TRUE
+FP034,"Ayam taliwang, masakan",HEWANI,TRUE
+FP001,"Ayam, ampela, goreng",HEWANI,TRUE
+FR005,"Ayam, daging, segar",HEWANI,TRUE
+FR006,"Ayam, dideh/darah, segar",HEWANI,TRUE
+FR007,"Ayam, hati, segar",HEWANI,TRUE
+FP002,"Ayam, usus, goreng",HEWANI,TRUE
+FR001,"Anak sapi, daging, gemuk, segar",HEWANI,TRUE
+FR002,"Anak sapi, daging, kurus, segar",HEWANI,TRUE
+FR003,"Anak sapi, daging, sedang, segar",HEWANI,TRUE
+FR004,"Angsa, daging, segar",HEWANI,TRUE
+FR012,"Bebek (itik), daging, segar",HEWANI,TRUE
+FR013,"Bebek alabio, daging, segar",HEWANI,TRUE
+FP003,"Bebek, daging, goreng",HEWANI,TRUE
+FP036,Beef burger,HEWANI,TRUE
+FP037,"Beef teriyaki, masakan",HEWANI,TRUE
+FP038,"Beef yakiniku, masakan",HEWANI,TRUE
+FP041,"Chicken teriyaki, masakan",HEWANI,TRUE
+FP042,"Chikiniku, masakan",HEWANI,TRUE
+FP085,"Sukiyaki, masakan",HEWANI,TRUE
+FP049,"Kalio ayam, masakan",HEWANI,TRUE
+FP011,"Sapi, abon",HEWANI,TRUE
+FP012,"Sapi, abon, asli",HEWANI,TRUE
+FR023,"Sapi, babat, segar",HEWANI,TRUE
+FP013,"Sapi, daging, asap",HEWANI,TRUE
+FP014,"Sapi, daging, dendeng, mentah",HEWANI,TRUE
+FR024,"Sapi, daging, gemuk, segar",HEWANI,TRUE
+FP015,"Sapi, daging, kornet",HEWANI,TRUE
+FR025,"Sapi, daging, kurus, segar",HEWANI,TRUE
+FR026,"Sapi, daging, lemak sedang, segar",HEWANI,TRUE
+FP016,"Sapi, daging, sosis (Worst)",HEWANI,TRUE
+FR027,"Sapi, daleman, segar",HEWANI,TRUE
+FR028,"Sapi, dideh/darah",HEWANI,TRUE
+FR029,"Sapi, ginjal, segar",HEWANI,TRUE
+FP017,"Sapi, hati, sosis (liverworst)",HEWANI,TRUE
+FR030,"Sapi, keleponan, segar",HEWANI,TRUE
+FR031,"Sapi, liver, segar",HEWANI,TRUE
+FR032,"Sapi, otak, segar",HEWANI,TRUE
+FP018,"Sapi, paru, dendeng, mentah",HEWANI,TRUE
+FP019,"Sapi, paru, goreng",HEWANI,TRUE
+FR033,"Sapi, usus, segar",HEWANI,TRUE
+FP065,"Sate pusut, masakan",HEWANI,TRUE
+FP064,"Sate, penyu, masakan",HEWANI,TRUE
+FP067,"Sie reuboh, masakan",HEWANI,TRUE
+FP068,"Sop buntut, masakan",HEWANI,TRUE
+FP069,"Sop daging sapi, masakan",HEWANI,TRUE
+FP070,"Sop kaki sapi, masakan",HEWANI,TRUE
+FP071,"Sop kambing, masakan",HEWANI,TRUE
+FP072,"Sop konro, masakan",HEWANI,TRUE
+FP073,"Sop saudara, masakan",HEWANI,TRUE
+GP003,"Cumi-cumi, goreng",HEWANI,TRUE
+FP074,"Soto bandung, masakan",HEWANI,TRUE
+FP075,"Soto banjar, masakan",HEWANI,TRUE
+FP076,"Soto betawi, masakan",HEWANI,TRUE
+FP077,"Soto jeroan, masakan",HEWANI,TRUE
+FP078,"Soto kudus, masakan",HEWANI,TRUE
+FP079,"Soto madura, masakan",HEWANI,TRUE
+FP080,"Soto padang, masakan",HEWANI,TRUE
+FP081,"Soto pekalongan, masakan",HEWANI,TRUE
+FP082,"Soto pemalang, masakan",HEWANI,TRUE
+FP083,"Soto sukaraja, masakan",HEWANI,TRUE
+FP084,"Soto sulung, masakan",HEWANI,TRUE
+FP061,"Rawon, masakan",HEWANI,TRUE
+FP062,"Rendang sapi, masakan",HEWANI,TRUE
+HR001,"Telur ayam kampung, segar",HEWANI,TRUE
+HR003,"Telur ayam ras, bagian kuning, segar",HEWANI,TRUE
+HR004,"Telur ayam ras, bagian putih, segar",HEWANI,TRUE
+HR002,"Telur ayam ras, segar",HEWANI,TRUE
+HP001,"Telur ayam, dadar, masakan",HEWANI,TRUE
+HR005,"Telur bebek alabio, segar",HEWANI,TRUE
+HR008,"Telur bebek tambak, segar",HEWANI,TRUE
+HP002,"Telur bebek, asin, mentah",HEWANI,TRUE
+HR006,"Telur bebek, bagian kuning, segar",HEWANI,TRUE
+HR007,"Telur bebek, bagian putih, segar",HEWANI,TRUE
+HP003,"Telur bebek, dadar, masakan",HEWANI,TRUE
+HR009,"Telur burung maleo, segar",HEWANI,TRUE
+HR011,"Telur burung puyuh, segar",HEWANI,TRUE
+HR010,"Telur penyu, segar",HEWANI,TRUE
+HP007,"Kalio telur, masakan",HEWANI,TRUE
+HP004,"Ikan, telur, asin, mentah",HEWANI,TRUE
+GR082,"Udang, besar, segar",HEWANI,TRUE
+GR084,"Udang, segar",HEWANI,TRUE
+GR083,"Udang galah, segar",HEWANI,TRUE
+GP087,"Saboko gurita, masakan",HEWANI,TRUE
+GP088,"Saboko saltan, masakan",HEWANI,TRUE
+GP089,"Saboko sardin, masakan",HEWANI,TRUE
+GP049,Sardines dalam kaleng,HEWANI,TRUE
+GP090,Sate Bandeng,HEWANI,TRUE
+GP073,"Lawara penjah, masakan",HEWANI,TRUE
+GR051,"Lokan, segar",HEWANI,TRUE
+GP074,"Model, masakan",HEWANI,TRUE
+GP075,"Mujahir acar kuning, masakan",HEWANI,TRUE
+GP076,"Parede baleh, masakan",HEWANI,TRUE
+GP077,Pempek adaan,HEWANI,TRUE
+GP078,Pempek belida,HEWANI,TRUE
+GP079,Pempek kapal selam,HEWANI,TRUE
+GP080,Pempek kelesan,HEWANI,TRUE
+GP081,Pempek kulit,HEWANI,TRUE
+GP082,Pempek telur,HEWANI,TRUE
+GP083,Pempek tenggiri,HEWANI,TRUE
+GP084,"Pencok lele, masakan",HEWANI,TRUE
+GP085,"Pinda, masakan",HEWANI,TRUE
+GP086,"Pindang kenari, masakan",HEWANI,TRUE
+GR063,"Rajungan, segar",HEWANI,TRUE
+GP065,"Gulai ikan, masakan",HEWANI,TRUE
+GP005,"Ikan bandeng presto, masakan",HEWANI,TRUE
+GP008,"Ikan cakalang asap, mentah",HEWANI,TRUE
+GP020,Ikan mujahir goreng,HEWANI,TRUE
+GP009,"Ikan cakalang asin, mentah",HEWANI,TRUE
+CP070,Tempe bongkrek,NABATI,FALSE
+CP071,Tempe gembus P3G,NABATI,FALSE
+CP072,Tempe gembus yogya,NABATI,FALSE
+CP073,Tempe kacang babi,NABATI,FALSE
+CP074,Tempe kecipir (kacang belimbing),NABATI,FALSE
+CP075,Tempe kedelai + jagung,NABATI,FALSE
+CP076,"Tempe kedelai murni, goreng",NABATI,FALSE
+CP077,"Tempe kedelai murni, mentah",NABATI,FALSE
+CP078,Tempe koro benguk,NABATI,FALSE
+CP079,Tempe lamtoro,NABATI,FALSE
+CP080,Tempe lamtoro var. gung dengan kulit,NABATI,FALSE
+CP081,Tempe lamtoro var. gung tanpa kulit,NABATI,FALSE
+CP082,Tempe pasar,NABATI,FALSE
+CP083,Tempe pasar goreng,NABATI,FALSE
+CP062,Tahu goreng,NABATI,FALSE
+CR001,"Kacang arab, kering",NABATI,FALSE
+CP031,Kacang atom,NABATI,FALSE
+CR002,"Kacang babi, kering",NABATI,FALSE
+CR003,"Kacang belimbing (kecipir), kering",NABATI,FALSE
+CP001,"Kacang belimbing (kecipir), rebus",NABATI,FALSE
+CR004,"Kacang beracun, segar",NABATI,FALSE
+CP002,"Kacang bogor, goreng",NABATI,FALSE
+CR005,"Kacang bogor, kering",NABATI,FALSE
+CP003,"Kacang bogor, rebus",NABATI,FALSE
+CR006,"Kacang bogor, segar",NABATI,FALSE
+CR007,"Kacang endel, biji, kering",NABATI,FALSE
+CR008,"Kacang ercis, segar",NABATI,FALSE
+CR009,"Kacang galing, segar",NABATI,FALSE
+CP032,Kacang goyang,NABATI,FALSE
+CR010,"Kacang gude, biji, kering",NABATI,FALSE
+CR011,"Kacang gude, biji, segar",NABATI,FALSE
+CP004,"Kacang gude, rebus",NABATI,FALSE
+CR012,"Kacang hijau var. bakti, kering",NABATI,FALSE
+CR013,"Kacang hijau var. siwalik, kering",NABATI,FALSE
+CR014,"Kacang hijau, kering",NABATI,FALSE
+CP005,"Kacang hijau, rebus",NABATI,FALSE
+CR015,"Kacang hitam, kering",NABATI,FALSE
+CR016,"Kacang kapri, segar",NABATI,FALSE
+CP006,"Kacang kedelai, goreng",NABATI,FALSE
+CR017,"Kacang kedelai, kering",NABATI,FALSE
+CP007,"Kacang kedelai, rebus",NABATI,FALSE
+CR018,"Kacang kedelai, segar",NABATI,FALSE
+CR019,"Kacang kincai, kering",NABATI,FALSE
+CR020,"Kacang komak, segar",NABATI,FALSE
+CR021,"Kacang kuning, kering",NABATI,FALSE
+CR022,"Kacang lebui /iris, kering",NABATI,FALSE
+CR023,"Kacang mentega, kering",NABATI,FALSE
+CP008,"Kacang merah kering, rebus",NABATI,FALSE
+CP009,"Kacang merah segar, rebus",NABATI,FALSE
+CR025,"Kacang merah tua, kering",NABATI,FALSE
+CR026,"Kacang merah, kering",NABATI,FALSE
+CR027,"Kacang merah, segar",NABATI,FALSE
+CR024,"Kacang merah/banda, kering",NABATI,FALSE
+CP010,"Kacang mete/biji jambu monyet, goreng",NABATI,FALSE
+CR028,"Kacang mete/biji jambu monyet, segar",NABATI,FALSE
+CP033,Kacang negara,NABATI,FALSE
+CR029,"Kacang panjang, biji, kering",NABATI,FALSE
+CP034,Kacang sukro,NABATI,FALSE
+CP011,Kacang tanah rebus dg kulit,NABATI,FALSE
+CR030,Kacang tanah sangan,NABATI,FALSE
+CR031,Kacang tanah sangan tanpa selaput,NABATI,FALSE
+CP035,Kacang tanah sari,NABATI,FALSE
+CP012,"Kacang tanah, goreng",NABATI,FALSE
+CR032,"Kacang tanah, kering",NABATI,FALSE
+CP013,"Kacang tanah, rebus",NABATI,FALSE
+CR033,"Kacang tolo / tunggak, kering",NABATI,FALSE
+CP014,"Kacang tolo / tunggak, rebus",NABATI,FALSE
+CR034,"Kacang tunis, kering",NABATI,FALSE
+CR035,"Kacang uci, kering",NABATI,FALSE
+CR036,"Kacang urei, kering",NABATI,FALSE
