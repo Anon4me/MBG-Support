@@ -2,35 +2,47 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-from logic.loader import load_csv
 from logic.nutrition import calculate_nutrition, aggregate
 from logic.mbg import group_age, group_up, get_standard, evaluasi_mbg
 
-def load_csv_safe(path):
+def load_csv_safe(path, delimiter=None):
+    """
+    Loads CSV robustly:
+    - Removes BOM
+    - Strips quotes from headers
+    - Converts headers to lowercase and underscores
+    - Uses provided delimiter or auto-detect
+    - Warns on bad lines
+    """
     df = pd.read_csv(
         path,
-        delimiter=';',
+        delimiter=delimiter or None, 
         engine='python',
-        encoding='utf-8-sig',  
+        encoding='utf-8-sig',        
         on_bad_lines='warn'
     )
 
-    df.columns = [col.strip() for col in df.columns]
+    df.columns = [
+        col.strip()    
+           .strip('"')  
+           .replace(" ", "_")  
+           .lower()       
+        for col in df.columns
+    ]
     return df
 
-tkpi = load_csv("data/clean_data.csv")
-food_cat = load_csv("data/food_category.csv")
-age_df = load_csv("data/age_group.csv")
-edu_df = load_csv("data/education_level.csv")
-std_df = load_csv("data/standar_mbg.csv")
-
-tkpi.columns = [col.strip().lower().replace('"', '').replace(" ", "_") for col in tkpi.columns]
+tkpi = load_csv_safe("data/clean_data.csv")
+food_cat = load_csv_safe("data/food_category.csv")
+age_df = load_csv_safe("data/age_group.csv")
+edu_df = load_csv_safe("data/education_level.csv")
+std_df = load_csv_safe("data/standar_mbg.csv")
 
 st.title("MBG Menu Evaluator")
 
 if "menu_items" not in st.session_state:
     st.session_state.menu_items = []
 
+# data input
 with st.sidebar:
     st.header("Profil Penerima")
     age = st.number_input("Usia (tahun)", min_value=3, max_value=18, value=7)
@@ -39,7 +51,7 @@ with st.sidebar:
 # menu mbg
 st.subheader("Pilih Menu")
 
-food_list = sorted(tkpi["Nama Bahan"].unique())
+food_list = sorted(tkpi["nama"].unique())
 food_name = st.selectbox("Nama Makanan", food_list)
 
 gram = st.number_input(
@@ -50,13 +62,13 @@ gram = st.number_input(
 )
 
 if st.button("Tambah ke Menu"):
-    row = tkpi[tkpi["Nama Bahan"] == food_name]
+    row = tkpi[tkpi["nama"] == food_name]
 
     if row.empty:
         st.error("Makanan tidak ditemukan di database")
         st.stop()
 
-    food_id = int(row.iloc[0]["Id"])
+    food_id = int(row.iloc[0]["id"]) 
 
     nutrition = calculate_nutrition(
         food_id=food_id,
@@ -92,6 +104,7 @@ if st.session_state.menu_items:
     col2.metric("Protein (g)", f"{total['protein']:.1f}", "OK" if result["protein_ok"] else "Kurang")
     col3.metric("Serat (g)", f"{total['fiber']:.1f}", "OK" if result["fiber_ok"] else "Kurang")
 
+    # Bar chart
     fig = px.bar(
         x=["Energi", "Protein", "Karbohidrat", "Serat"],
         y=[

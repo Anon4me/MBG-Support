@@ -1,4 +1,4 @@
-Id,Nama Bahan Makanan ,protein_type,is_animal
+Id,nama,protein_type,is_animal
 FP021,"Ayam goreng church texas, dada",HEWANI,TRUE
 FP023,"Ayam goreng church texas, sayap",HEWANI,TRUE
 FP022,"Ayam goreng church,texas paha",HEWANI,TRUE
