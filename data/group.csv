@@ -1,6 +1,6 @@
 group_id,group_name,age_min,age_max,gender
 SD_AWAL,SD_kelas_awal,6,8,all
 SD_TINGGI,SD_kelas_tinggi,9,12,all
-SMP_F,SMP_all,12,15,all
-SMA_F,SMA_all,15,18,all
+SMP,SMP_all,12,15,all
+SMA,SMA_all,15,18,all
 
