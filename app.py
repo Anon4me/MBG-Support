@@ -243,69 +243,69 @@ if st.session_state.result:
         st.subheader("🧠 Rekomendasi Penyesuaian Menu")
         for r in rekomendasi:
             st.info(r)
-st.divider()
-st.subheader("📋 Kebutuhan Nutrisi untuk Menu Valid")
 
-def status_label(value, min_val=None, max_val=None):
-    if min_val is not None and value < min_val:
-        return "❌ Kurang"
-    if max_val is not None and value > max_val:
-        return "⚠️ Berlebih"
-    return "✅ Cukup"
+    st.divider()
+    st.subheader("📋 Kebutuhan Nutrisi untuk Menu Valid")
 
-data_table = [
-    {
-        "Nutrisi": "Energi (kkal)",
-        "Standar MBG": f"{std['min_energy']} – {std['max_energy']}",
-        "Menu Saat Ini": result["energi"],
-        "Selisih": (
-            result["energi"] - std["min_energy"]
-            if result["energi"] < std["min_energy"]
-            else result["energi"] - std["max_energy"]
-            if result["energi"] > std["max_energy"]
-            else 0
-        ),
-        "Status": status_label(
-            result["energi"],
-            std["min_energy"],
-            std["max_energy"]
-        ),
-    },
-    {
-        "Nutrisi": "Protein (g)",
-        "Standar MBG": f"≥ {std['min_protein']}",
-        "Menu Saat Ini": result["protein"],
-        "Selisih": result["protein"] - std["min_protein"],
-        "Status": status_label(result["protein"], std["min_protein"]),
-    },
-    {
-        "Nutrisi": "Protein Hewani (g)",
-        "Standar MBG": f"≥ {std['min_animal']}",
-        "Menu Saat Ini": result["animal"],
-        "Selisih": result["animal"] - std["min_animal"],
-        "Status": status_label(result["animal"], std["min_animal"]),
-    },
-    {
-        "Nutrisi": "Karbohidrat (g)",
-        "Standar MBG": f"≥ {std['min_carb']}",
-        "Menu Saat Ini": result["karbo"],
-        "Selisih": result["karbo"] - std["min_carb"],
-        "Status": status_label(result["karbo"], std["min_carb"]),
-    },
-    {
-        "Nutrisi": "Serat (g)",
-        "Standar MBG": f"≥ {std['min_fiber']}",
-        "Menu Saat Ini": result["serat"],
-        "Selisih": result["serat"] - std["min_fiber"],
-        "Status": status_label(result["serat"], std["min_fiber"]),
-    },
-]
+    def status_label(value, min_val=None, max_val=None):
+        if min_val is not None and value < min_val:
+            return "❌ Kurang"
+        if max_val is not None and value > max_val:
+            return "⚠️ Berlebih"
+        return "✅ Cukup"
 
-df_kebutuhan = pd.DataFrame(data_table)
+    data_table = [
+        {
+            "Nutrisi": "Energi (kkal)",
+            "Standar MBG": f"{std['min_energy']} – {std['max_energy']}",
+            "Menu Saat Ini": result["energi"],
+            "Selisih": (
+                result["energi"] - std["min_energy"]
+                if result["energi"] < std["min_energy"]
+                else result["energi"] - std["max_energy"]
+                if result["energi"] > std["max_energy"]
+                else 0
+            ),
+            "Status": status_label(
+                result["energi"],
+                std["min_energy"],
+                std["max_energy"]
+            ),
+        },
+        {
+            "Nutrisi": "Protein (g)",
+            "Standar MBG": f"≥ {std['min_protein']}",
+            "Menu Saat Ini": result["protein"],
+            "Selisih": result["protein"] - std["min_protein"],
+            "Status": status_label(result["protein"], std["min_protein"]),
+        },
+        {
+            "Nutrisi": "Protein Hewani (g)",
+            "Standar MBG": f"≥ {std['min_animal']}",
+            "Menu Saat Ini": result["animal"],
+            "Selisih": result["animal"] - std["min_animal"],
+            "Status": status_label(result["animal"], std["min_animal"]),
+        },
+        {
+            "Nutrisi": "Karbohidrat (g)",
+            "Standar MBG": f"≥ {std['min_carb']}",
+            "Menu Saat Ini": result["karbo"],
+            "Selisih": result["karbo"] - std["min_carb"],
+            "Status": status_label(result["karbo"], std["min_carb"]),
+        },
+        {
+            "Nutrisi": "Serat (g)",
+            "Standar MBG": f"≥ {std['min_fiber']}",
+            "Menu Saat Ini": result["serat"],
+            "Selisih": result["serat"] - std["min_fiber"],
+            "Status": status_label(result["serat"], std["min_fiber"]),
+        },
+    ]
 
-st.dataframe(
-    df_kebutuhan,
-    use_container_width=True,
-    hide_index=True
-)
+    df_kebutuhan = pd.DataFrame(data_table)
 
+    st.dataframe(
+        df_kebutuhan,
+        use_container_width=True,
+        hide_index=True
+    )
