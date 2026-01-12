@@ -2,14 +2,8 @@ import streamlit as st
 import pandas as pd
 import uuid
 
-# ===============================
-# PAGE CONFIG
-# ===============================
 st.set_page_config(page_title="AI Validasi Menu MBG", layout="wide")
 
-# ===============================
-# HARDCODE STANDAR MBG
-# ===============================
 MBG_STANDARD = {
     "SD_AWAL":  {"min_energy": 450, "max_energy": 600, "min_protein": 18, "min_animal": 8,  "min_fiber": 12, "min_carb": 150},
     "SD_TINGGI":{"min_energy": 500, "max_energy": 700, "min_protein": 22, "min_animal": 10, "min_fiber": 14, "min_carb": 180},
@@ -32,18 +26,12 @@ KELAS_MAP = {
     "SMA Kelas XII": "SMA",
 }
 
-# ===============================
-# SESSION STATE
-# ===============================
 if "menu_items" not in st.session_state:
     st.session_state.menu_items = []
 
 if "result" not in st.session_state:
     st.session_state.result = None
 
-# ===============================
-# LOAD DATA (FIX HEADER)
-# ===============================
 @st.cache_data
 def load_data():
     clean = pd.read_csv("data/clean_data.csv", quotechar='"', skipinitialspace=True)
@@ -62,9 +50,6 @@ def load_data():
 
 clean_df, food_cat_df, protein_df = load_data()
 
-# ===============================
-# BUILD MENU BY CATEGORY
-# ===============================
 NUM_COLS = ["energi_kkal", "protein_g", "karbo_g", "serat_g"]
 
 for col in NUM_COLS:
@@ -87,9 +72,6 @@ def normalize_category(cat):
         return "Buah"
     return None
 
-# ===============================
-# BUILD MENU OPTIONS
-# ===============================
 MENU_OPTIONS = {
     "Makanan Pokok": [],
     "Lauk Pauk": [],
@@ -102,15 +84,10 @@ for _, r in food_cat_df.iterrows():
     if cat:
         MENU_OPTIONS[cat].append(r["nama"])
 
-# ===============================
-# UI HEADER
-# ===============================
+# data murid/siswa
 st.title("🍽️ AI Validasi Menu MBG")
 st.caption("Perhitungan REAL berdasarkan data gizi")
 
-# ===============================
-# STUDENT INFO
-# ===============================
 st.subheader("👤 Informasi Siswa")
 col1, col2 = st.columns(2)
 
@@ -122,9 +99,7 @@ with col2:
 
 std = MBG_STANDARD[KELAS_MAP[kelas]]
 
-# ===============================
-# MENU SELECTION
-# ===============================
+# menu makanan
 st.subheader("🍴 Pilihan Menu")
 
 for category, options in MENU_OPTIONS.items():
@@ -139,9 +114,7 @@ for category, options in MENU_OPTIONS.items():
                     "portion": 100
                 })
 
-# ===============================
-# PORTION CONTROL
-# ===============================
+# porsi input
 st.subheader("⚖️ Porsi")
 
 for item in st.session_state.menu_items:
@@ -155,9 +128,7 @@ for item in st.session_state.menu_items:
         key=item["id"]
     )
 
-# ===============================
-# VALIDATION
-# ===============================
+# validasi
 if st.button("Validasi Menu"):
     energi = protein = serat = karbo = animal_protein = 0
 
@@ -193,9 +164,7 @@ if st.button("Validasi Menu"):
         "status": status
     }
 
-# ===============================
-# OUTPUT
-# ===============================
+# output result
 if st.session_state.result:
     r = st.session_state.result
     st.subheader("📊 Hasil")
@@ -211,3 +180,61 @@ if st.session_state.result:
         st.success("✅ MENU SESUAI STANDAR MBG")
     else:
         st.error("❌ MENU TIDAK SESUAI STANDAR MBG")
+
+# rekomendasi penyesuaian
+st.subheader("🧠 Rekomendasi Penyesuaian Menu")
+
+rekomendasi = []
+
+def cari_makanan_terbaik(kategori, nutrisi):
+    kandidat = []
+    for item in st.session_state.menu_items:
+        if item["category"] == kategori:
+            row = clean_df[clean_df["nama"] == item["name"]]
+            if not row.empty:
+                kandidat.append((item, row[nutrisi].values[0]))
+    kandidat.sort(key=lambda x: x[1], reverse=True)
+    return kandidat[0][0] if kandidat else None
+
+
+# kekurangan
+if r["energi"] < std["min_energy"]:
+    target = cari_makanan_terbaik("Makanan Pokok", "energi_kkal")
+    if target:
+        tambahan = int((std["min_energy"] - r["energi"]) / 4)
+        rekomendasi.append(f"➕ Tambahkan ±{tambahan} g **{target['name']}** untuk menaikkan energi")
+    else:
+        rekomendasi.append("➕ Disarankan menambahkan **makanan pokok** (nasi / roti / kentang)")
+
+if r["protein"] < std["min_protein"]:
+    target = cari_makanan_terbaik("Lauk Pauk", "protein_g")
+    if target:
+        tambahan = int((std["min_protein"] - r["protein"]) * 10)
+        rekomendasi.append(f"➕ Tambahkan ±{tambahan} g **{target['name']}** untuk memenuhi protein")
+    else:
+        rekomendasi.append("➕ Disarankan menambahkan **lauk berprotein tinggi** (ayam / telur / tempe)")
+
+if r["animal"] < std["min_animal"]:
+    rekomendasi.append("➕ Tambahkan **lauk protein hewani** (ayam, ikan, telur)")
+
+if r["serat"] < std["min_fiber"]:
+    target = cari_makanan_terbaik("Sayuran", "serat_g")
+    if target:
+        rekomendasi.append(f"➕ Tambahkan ±50 g **{target['name']}** untuk meningkatkan serat")
+    else:
+        rekomendasi.append("➕ Disarankan menambahkan **sayuran hijau**")
+# kelebihan
+
+if r["karbo"] < std["min_carb"]:
+    rekomendasi.append("➕ Tambahkan **sumber karbohidrat** (nasi / ubi / jagung)")
+
+if r["energi"] > std["max_energy"]:
+    target = cari_makanan_terbaik("Makanan Pokok", "energi_kkal")
+    if target:
+        rekomendasi.append(f"➖ Kurangi ±50 g **{target['name']}** untuk menurunkan energi")
+
+if rekomendasi:
+    for rec in rekomendasi:
+        st.info(rec)
+else:
+    st.success("🎯 Menu sudah ideal, tidak perlu penyesuaian")
