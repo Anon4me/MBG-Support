@@ -2,13 +2,13 @@ import streamlit as st
 import pandas as pd
 import re
 
-st.set_page_config(page_title="AI Script Auditor MBG", layout="wide")
+st.set_page_config(page_title="MBG Support", layout="wide")
 
 @st.cache_data
 def load_data():
     tkpi = pd.read_csv("data/clean_data.csv", engine="python")
     protein_cat = pd.read_csv("data/category_protein.csv")
-    food_cat = pd.read_csv("data/food_category.csv")
+    food_cat = pd.read_csv("data/food_category_all.csv")
     group_df = pd.read_csv("data/group.csv")
     standar_df = pd.read_csv("data/standar_mbg.csv", sep=";")
     return tkpi, protein_cat, food_cat, group_df, standar_df
