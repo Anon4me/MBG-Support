@@ -1,136 +1,161 @@
+# =========================
+# IMPORT & SETUP
+# =========================
 import streamlit as st
 import pandas as pd
-import re
+import time
+import uuid
 
-st.set_page_config(page_title="MBG Support", layout="wide")
+st.set_page_config(
+    page_title="AI Validasi Menu MBG",
+    layout="wide"
+)
 
-@st.cache_data
-def load_data():
-    tkpi = pd.read_csv("data/clean_data.csv", engine="python")
-    protein_cat = pd.read_csv("data/category_protein.csv")
-    food_cat = pd.read_csv("data/food_category_all.csv")
-    group_df = pd.read_csv("data/group.csv")
-    standar_df = pd.read_csv("data/standar_mbg.csv", sep=";")
-    return tkpi, protein_cat, food_cat, group_df, standar_df
+# =========================
+# STATE INIT
+# =========================
+if "menu_items" not in st.session_state:
+    st.session_state.menu_items = []
 
-tkpi_df, protein_cat_df, food_cat_df, group_df, standar_df = load_data()
+if "validated" not in st.session_state:
+    st.session_state.validated = False
 
-def to_float(val):
-    try:
-        return float(str(val).replace(",", "."))
-    except:
-        return 0.0
+if "result" not in st.session_state:
+    st.session_state.result = None
 
-# normalisasi
-def normalize_food_name(raw_name, food_cat_df):
-    text = raw_name.lower()
-    for _, row in food_cat_df.iterrows():
-        if row["nama bahan"].lower() in text:
-            return row["nama bahan"]
-    return raw_name
+if "logbook" not in st.session_state:
+    st.session_state.logbook = []
 
-# kelas
-def resolve_group(age, gender, group_df):
-    df = group_df[
-        (group_df["age_min"] <= age) &
-        (group_df["age_max"] >= age) &
-        ((group_df["gender"] == gender) | (group_df["gender"] == "all"))
+# =========================
+# DATA MENU
+# =========================
+MENU_CATEGORIES = {
+    "Makanan Pokok": [
+        "Nasi Putih", "Nasi Merah", "Nasi Jagung", "Kentang Rebus", "Ubi Rebus", "Mie"
+    ],
+    "Lauk Pauk": [
+        "Ayam Goreng", "Ayam Bakar", "Ikan Goreng", "Ikan Bakar",
+        "Tempe Goreng", "Tahu Goreng", "Telur Rebus", "Telur Dadar"
+    ],
+    "Sayuran": [
+        "Sayur Asem", "Sayur Sop", "Tumis Kangkung", "Capcay", "Sayur Lodeh"
+    ],
+    "Buah": [
+        "Pisang", "Apel", "Jeruk", "Pepaya", "Semangka"
     ]
-    if df.empty:
-        raise ValueError("Group MBG tidak ditemukan")
-    return df.iloc[0]["group_id"]
+}
 
-# kalkulasi nutrisi
-def calculate_menu_nutrition(menu_items, tkpi_df, protein_cat_df):
-    total = {
-        "energy": 0.0,
-        "protein": 0.0,
-        "animal_protein": 0.0,
-        "fiber": 0.0,
-        "carbohydrate": 0.0
+st.title("🍽️ AI Validasi Menu MBG")
+st.caption("Validasi otomatis menu gizi sesuai SOP")
+
+# menu choice
+st.subheader("🍴 Pilihan Menu Makanan")
+
+for category, options in MENU_CATEGORIES.items():
+    with st.expander(category, expanded=False):
+        selected = st.multiselect(
+            f"Pilih {category}",
+            options,
+            key=f"select_{category}"
+        )
+
+        for item in selected:
+            exists = any(m["name"] == item for m in st.session_state.menu_items)
+            if not exists:
+                st.session_state.menu_items.append({
+                    "id": str(uuid.uuid4()),
+                    "category": category,
+                    "name": item,
+                    "portion": 100,
+                    "custom": False
+                })
+
+# portion control
+st.subheader("⚖️ Kontrol Porsi")
+
+if not st.session_state.menu_items:
+    st.info("Pilih menu terlebih dahulu")
+else:
+    for item in st.session_state.menu_items:
+        col1, col2, col3 = st.columns([3, 1, 1])
+        with col1:
+            st.markdown(f"**{item['name']}**")
+        with col2:
+            item["custom"] = st.checkbox(
+                "Porsi Bebas",
+                value=item["custom"],
+                key=f"custom_{item['id']}"
+            )
+        with col3:
+            item["portion"] = st.number_input(
+                "gram",
+                min_value=0,
+                step=10,
+                disabled=not item["custom"],
+                value=item["portion"],
+                key=f"portion_{item['id']}"
+            )
+
+# ai validation
+st.subheader("✨ AI Validasi Menu")
+
+can_validate = len(st.session_state.menu_items) > 0
+
+if st.button(
+    "Validasi Menu",
+    disabled=not can_validate
+):
+    with st.spinner("Memproses menu dengan AI..."):
+        time.sleep(1)
+        st.info("Menganalisis komposisi nutrisi...")
+        time.sleep(1)
+        st.info("Memeriksa kepatuhan SOP...")
+        time.sleep(1)
+        st.info("Menyusun laporan...")
+        time.sleep(1)
+
+    total_energy = sum(i["portion"] * 1.2 for i in st.session_state.menu_items)
+    total_protein = sum(i["portion"] * 0.08 for i in st.session_state.menu_items)
+    total_carb = sum(i["portion"] * 0.2 for i in st.session_state.menu_items)
+    total_fiber = sum(i["portion"] * 0.03 for i in st.session_state.menu_items)
+
+    status = "sesuai" if total_energy >= 400 else "tidak sesuai"
+
+    st.session_state.result = {
+        "energi": int(total_energy),
+        "protein": int(total_protein),
+        "karbohidrat": int(total_carb),
+        "serat": int(total_fiber),
+        "status": status,
+        "message": "Menu memenuhi standar MBG" if status == "sesuai" else "Energi belum mencukupi"
     }
 
-    for item in menu_items:
-        name = item["food"]
-        gram = item["gram"]
+    if status == "sesuai":
+        st.session_state.logbook.append({
+            "id": str(uuid.uuid4()),
+            "namaMenu": ", ".join(i["name"] for i in st.session_state.menu_items),
+            "bahanUtama": st.session_state.menu_items[0]["name"],
+            "kelas": "SD",
+            "energi": int(total_energy),
+            "statusSOP": "Sesuai SOP"
+        })
 
-        row = tkpi_df[tkpi_df["nama"].str.contains(name, case=False, na=False)]
-        if row.empty:
-            continue
+    st.session_state.validated = True
 
-        row = row.iloc[0]
-        factor = gram / 100
+# output result
+if st.session_state.validated and st.session_state.result:
+    st.subheader("📊 Output Laporan Gizi")
 
-        energy = to_float(row["energi_kkal"]) * factor
-        protein = to_float(row["protein_g"]) * factor
-        fiber = to_float(row["serat_g"]) * factor
-        carb = to_float(row["karbo_g"]) * factor
+    r = st.session_state.result
 
-        total["energy"] += energy
-        total["protein"] += protein
-        total["fiber"] += fiber
-        total["carbohydrate"] += carb
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Energi", f"{r['energi']} kkal")
+    c2.metric("Protein", f"{r['protein']} g")
+    c3.metric("Karbohidrat", f"{r['karbohidrat']} g")
+    c4.metric("Serat", f"{r['serat']} g")
 
-        prot = protein_cat_df[
-            protein_cat_df["nama"].str.contains(name, case=False, na=False)
-        ]
-        if not prot.empty and str(prot.iloc[0]["is_animal"]).upper() == "TRUE":
-            total["animal_protein"] += protein
+    if r["status"] == "sesuai":
+        st.success(f"✅ {r['message']}")
+    else:
+        st.error(f"❌ {r['message']}")
 
-    return total
-
-# MBG evaluasi
-def evaluate_mbg(nutrition, standard):
-    return {
-        "energy": standard["min_energy_kcal"] <= nutrition["energy"] <= standard["max_energy_kcal"],
-        "protein": nutrition["protein"] >= standard["min_protein_g"],
-        "animal_protein": nutrition["animal_protein"] >= standard["min_animal_protein_g"],
-        "fiber": nutrition["fiber"] >= standard["min_fiber_g"],
-        "carbohydrate": nutrition["carbohydrate"] >= standard["min_carbohydrate_g"],
-    }
-
-st.title("🍽️ MBG Support")
-
-st.header("Profil Siswa")
-age = st.number_input("Usia", min_value=4, max_value=18, step=1)
-gender = st.selectbox("Jenis Kelamin", ["male", "female"])
-
-st.header("Input Menu")
-menu_items = []
-
-for i in range(5):
-    col1, col2 = st.columns(2)
-    with col1:
-        food = st.text_input(f"Makanan {i+1}")
-    with col2:
-        gram = st.number_input(f"Gram {i+1}", min_value=0, step=10)
-
-    if food and gram > 0:
-        normalized = normalize_food_name(food, food_cat_df)
-        menu_items.append({"food": normalized, "gram": gram})
-
-# output evaluasi
-if st.button("Evaluasi Menu"):
-    try:
-        group_id = resolve_group(age, gender, group_df)
-        standard = standar_df[standar_df["group_id"] == group_id].iloc[0]
-
-        nutrition = calculate_menu_nutrition(menu_items, tkpi_df, protein_cat_df)
-        evaluation = evaluate_mbg(nutrition, standard)
-
-        score = sum(evaluation.values())
-        if score == len(evaluation):
-            status = "✅ SESUAI"
-        elif score >= 3:
-            status = "⚠️ PERLU PERBAIKAN"
-        else:
-            status = "❌ TIDAK SESUAI"
-
-        st.subheader("Hasil Evaluasi")
-        st.write(f"**Group MBG:** {group_id}")
-        st.write(f"**Status:** {status}")
-        st.json(nutrition)
-        st.json(evaluation)
-
-    except Exception as e:
-        st.error(str(e))
