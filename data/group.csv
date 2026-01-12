@@ -1,7 +1,6 @@
 group_id,group_name,age_min,age_max,gender
-SD_AWAL,SD Kelas Awal,6,8,all
-SD_TINGGI,SD Kelas Tinggi,9,12,all
-SMP_F,SMP Perempuan,12,15,female
-SMP_M,SMP Laki-laki,12,15,male
-SMA_F,SMA Perempuan,15,18,female
-SMA_M,SMA Laki-laki,15,18,male
+SD_AWAL,SD_kelas_awal,6,8,all
+SD_TINGGI,SD_kelas_tinggi,9,12,all
+SMP_F,SMP_all,12,15,all
+SMA_F,SMA_all,15,18,all
+
