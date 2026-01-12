@@ -65,6 +65,16 @@ clean_df, food_cat_df, protein_df = load_data()
 # ===============================
 # BUILD MENU BY CATEGORY
 # ===============================
+NUM_COLS = ["energi_kkal", "protein_g", "karbo_g", "serat_g"]
+
+for col in NUM_COLS:
+    clean_df[col] = (
+        clean_df[col]
+        .astype(str)
+        .str.replace(",", ".", regex=False)
+        .str.strip()
+    )
+    clean_df[col] = pd.to_numeric(clean_df[col], errors="coerce").fillna(0)
 
 def normalize_category(cat):
     if "pokok" in cat:
