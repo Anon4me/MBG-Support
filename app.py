@@ -1,230 +1,169 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import uuid
 
 from logic.nutrition import perhitungan_nutrisi, aggregate
 from logic.mbg import group_age, group_up, get_standard, evaluasi_mbg
 
-
-st.set_page_config(
-    page_title="MBG Menu Evaluator",
-    layout="wide"
-)
-
+st.set_page_config(page_title="MBG Menu Evaluator", layout="wide")
 
 st.markdown("""
 <style>
-.card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.06);
-}
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
-}
-.label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 6px;
-    display: block;
-}
+.card {background:white;border-radius:16px;padding:24px;border:1px solid #e5e7eb;box-shadow:0 6px 14px rgba(0,0,0,0.06);}
+.title {font-size:1.25rem;font-weight:600;margin-bottom:1rem;}
+.label {font-size:0.85rem;font-weight:500;}
 </style>
 """, unsafe_allow_html=True)
 
-
-def load_csv_safe(path, delimiter=None):
-    df = pd.read_csv(
-        path,
-        delimiter=delimiter or None,
-        engine="python",
-        encoding="utf-8-sig",
-        on_bad_lines="warn"
-    )
-    df.columns = [
-        col.strip().strip('"').replace(" ", "_").lower()
-        for col in df.columns
-    ]
+def load_csv(path):
+    df = pd.read_csv(path, encoding="utf-8-sig", engine="python")
+    df.columns = [c.strip().replace(" ", "_").lower() for c in df.columns]
     return df
 
-tkpi = load_csv_safe("data/clean_data.csv")
-food_cat = load_csv_safe("data/food_category.csv")
-age_df = load_csv_safe("data/age_group.csv")
-edu_df = load_csv_safe("data/education_level.csv")
-std_df = load_csv_safe("data/standar_mbg.csv")
+tkpi = load_csv("data/clean_data.csv")
+food_cat = load_csv("data/food_category.csv")
+age_df = load_csv("data/age_group.csv")
+edu_df = load_csv("data/education_level.csv")
+std_df = load_csv("data/standar_mbg.csv")
 
+menu_categories = {
+    "makanan-pokok": "Makanan Pokok",
+    "lauk-pauk": "Lauk Pauk",
+    "sayuran": "Sayuran",
+    "buah-buahan": "Buah-buahan"
+}
 
 if "menu_items" not in st.session_state:
     st.session_state.menu_items = []
 
-if "student_info" not in st.session_state:
-    st.session_state.student_info = {
-        "jenjang": "",
-        "kelas": "",
-        "gender": ""
-    }
+if "student" not in st.session_state:
+    st.session_state.student = {"kelas": "", "gender": ""}
 
-kelas_options = {
-    "SD": [
-        "SD Kelas I", "SD Kelas II", "SD Kelas III",
-        "SD Kelas IV", "SD Kelas V", "SD Kelas VI"
-    ],
-    "SMP": [
-        "SMP Kelas VII", "SMP Kelas VIII", "SMP Kelas IX"
-    ],
-    "SMA": [
-        "SMA Kelas X", "SMA Kelas XI", "SMA Kelas XII"
-    ]
-}
+def kelas_to_age(k):
+    return {
+        "SD Kelas I":7,"SD Kelas II":8,"SD Kelas III":9,
+        "SD Kelas IV":10,"SD Kelas V":11,"SD Kelas VI":12,
+        "SMP Kelas VII":13,"SMP Kelas VIII":14,"SMP Kelas IX":15,
+        "SMA Kelas X":16,"SMA Kelas XI":17,"SMA Kelas XII":18
+    }.get(k, 7)
 
-def kelas_to_age(kelas: str):
-    mapping = {
-        "SD Kelas I": 7,
-        "SD Kelas II": 8,
-        "SD Kelas III": 9,
-        "SD Kelas IV": 10,
-        "SD Kelas V": 11,
-        "SD Kelas VI": 12,
-        "SMP Kelas VII": 13,
-        "SMP Kelas VIII": 14,
-        "SMP Kelas IX": 15,
-        "SMA Kelas X": 16,
-        "SMA Kelas XI": 17,
-        "SMA Kelas XII": 18,
-    }
-    return mapping.get(kelas, 7)
+left, right = st.columns([2, 1])
 
-
-gender_map = {
-    "Laki-laki": "male",
-    "Perempuan": "female",
-    "Semua": "all"
-}
-
-st.title("🍱 MBG Menu Evaluator")
-
-
-# data input
-with st.container():
+with left:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">👤 Informasi Siswa</div>', unsafe_allow_html=True)
+    st.markdown('<div class="title">👤 Informasi Siswa</div>', unsafe_allow_html=True)
 
-    # Jenjang
-    st.markdown('<label class="label">Jenjang Pendidikan</label>', unsafe_allow_html=True)
-    jenjang = st.selectbox(
-        "",
-        ["", "SD", "SMP", "SMA"],
-        key="jenjang_select"
-    )
+    jenjang = st.selectbox("", ["", "SD", "SMP", "SMA"])
+    kelas = st.selectbox("", [""] + {
+        "SD": ["SD Kelas I","SD Kelas II","SD Kelas III","SD Kelas IV","SD Kelas V","SD Kelas VI"],
+        "SMP": ["SMP Kelas VII","SMP Kelas VIII","SMP Kelas IX"],
+        "SMA": ["SMA Kelas X","SMA Kelas XI","SMA Kelas XII"]
+    }.get(jenjang, []))
 
-    # default gender sd
-    if jenjang == "SD":
-        st.session_state.student_info["gender"] = "Semua"
+    gender = st.selectbox("", ["Semua","Perempuan","Laki-laki"])
 
-    # Kelas
-    st.markdown('<label class="label">Kelas</label>', unsafe_allow_html=True)
-    kelas = st.selectbox(
-        "",
-        [""] + kelas_options.get(jenjang, []),
-        disabled=(jenjang == ""),
-        key="kelas_select"
-    )
+    st.session_state.student.update({"kelas": kelas, "gender": gender})
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Gender
-    st.markdown('<label class="label">Jenis Kelamin</label>', unsafe_allow_html=True)
-    gender = st.selectbox(
-        "",
-        ["Semua"] if jenjang == "SD" else ["", "Perempuan", "Laki-laki", "Semua"],
-        disabled=(jenjang == "SD"),
-        key="gender_select"
-    )
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<div class="title">🍽️ Pilihan Menu</div>', unsafe_allow_html=True)
+
+    for cid, cname in menu_categories.items():
+        items = [i for i in st.session_state.menu_items if i["category"] == cid]
+        checked = st.checkbox(cname, value=len(items) > 0, key=f"chk_{cid}")
+
+        if checked and not items:
+            st.session_state.menu_items.append({
+                "id": str(uuid.uuid4()),
+                "category": cid,
+                "name": "",
+                "portion": 100,
+                "custom": False
+            })
+
+        if not checked:
+            st.session_state.menu_items = [i for i in st.session_state.menu_items if i["category"] != cid]
+
+        for item in items:
+            foods = sorted(tkpi["nama"].tolist())
+            cols = st.columns([4,1])
+            item["name"] = cols[0].selectbox("", [""]+foods, key=item["id"], index=foods.index(item["name"])+1 if item["name"] in foods else 0)
+            if cols[1].button("🗑️", key=f"del_{item['id']}"):
+                st.session_state.menu_items.remove(item)
+                st.rerun()
+
+        if items:
+            if st.button(f"➕ Tambah {cname}", key=f"add_{cid}"):
+                st.session_state.menu_items.append({
+                    "id": str(uuid.uuid4()),
+                    "category": cid,
+                    "name": "",
+                    "portion": 100,
+                    "custom": False
+                })
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.session_state.student_info.update({
-        "jenjang": jenjang,
-        "kelas": kelas,
-        "gender": gender
-    })
+with right:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown('<div class="title">⚖️ Kontrol Porsi</div>', unsafe_allow_html=True)
 
+    if not st.session_state.menu_items:
+        st.info("Pilih menu terlebih dahulu")
+    else:
+        for item in st.session_state.menu_items:
+            st.write(item["name"] or "Menu belum dipilih")
+            item["custom"] = st.checkbox("Porsi Bebas", value=item["custom"], key=f"c_{item['id']}")
+            item["portion"] = st.number_input(
+                "Gram",
+                value=int(item["portion"]),
+                min_value=0,
+                step=10,
+                disabled=not item["custom"],
+                key=f"p_{item['id']}"
+            )
 
-# menu mbg
-st.subheader("🍽️ Pilih Menu")
+        st.divider()
+        st.write("Total Item:", len(st.session_state.menu_items))
+        st.write("Total Gram:", sum(i["portion"] for i in st.session_state.menu_items))
 
-food_list = sorted(tkpi["nama"].unique())
-food_name = st.selectbox("Nama Makanan", food_list)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-gram = st.number_input("Berat (gram)", min_value=1.0, value=100.0, step=5.0)
+if st.button("✨ Validasi Menu", disabled=not (st.session_state.menu_items and st.session_state.student["kelas"])):
+    foods = []
 
-if st.button("➕ Tambah ke Menu"):
-    row = tkpi[tkpi["nama"] == food_name]
-    if row.empty:
-        st.error("Makanan tidak ditemukan")
-        st.stop()
+    for item in st.session_state.menu_items:
+        if not item["name"]:
+            st.error("Ada menu belum dipilih")
+            st.stop()
 
-    food_id = str(row.iloc[0]["id"])
-    nutrition = perhitungan_nutrisi(
-        food_id=food_id,
-        gram=gram,
-        clean_df=tkpi,
-        category_df=food_cat
-    )
+        row = tkpi[tkpi["nama"] == item["name"]]
+        food_id = str(row.iloc[0]["id"])
 
-    st.session_state.menu_items.append(nutrition)
-    st.success(f"{food_name} ({gram:.0f} g) ditambahkan")
+        foods.append(
+            perhitungan_nutrisi(
+                food_id=food_id,
+                gram=item["portion"],
+                clean_df=tkpi,
+                category_df=food_cat
+            )
+        )
 
+    total = aggregate(foods)
 
-if st.button("🔄 Reset Menu"):
-    st.session_state.menu_items = []
-    st.rerun()
-
-
-# evaluasi
-if st.session_state.menu_items and st.session_state.student_info["kelas"]:
-
-    age = kelas_to_age(st.session_state.student_info["kelas"])
-    gender_ui = st.session_state.student_info["gender"]
-    gender = gender_map.get(gender_ui, "all")
+    age = kelas_to_age(st.session_state.student["kelas"])
+    gender = st.session_state.student["gender"].lower()
+    gender = "male" if gender == "laki-laki" else "female" if gender == "perempuan" else "all"
 
     level, grade, default_gender = group_age(age, age_df)
-    effective_gender = gender if gender != "all" else default_gender
-
-    group_id = group_up(level, grade, edu_df, effective_gender)
+    group_id = group_up(level, grade, edu_df, gender if gender != "all" else default_gender)
     std = get_standard(group_id, std_df)
 
-    total = aggregate(st.session_state.menu_items)
     result = evaluasi_mbg(total, std)
 
-    st.divider()
-    st.subheader("📊 Hasil Evaluasi Gizi")
-
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Energi (kcal)", f"{total['energy']:.1f}", result["energy_status"])
-    col2.metric("Protein (g)", f"{total['protein']:.1f}", "OK" if result["protein_ok"] else "Kurang")
-    col3.metric("Serat (g)", f"{total['fiber']:.1f}", "OK" if result["fiber_ok"] else "Kurang")
-
-    fig = px.bar(
-        x=["Energi", "Protein", "Karbohidrat", "Serat"],
-        y=[
-            total["energy"],
-            total["protein"],
-            total["carbohydrate"],
-            total["fiber"]
-        ],
-        title="Total Asupan Gizi"
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-    with st.expander("📄 Detail Evaluasi (JSON)"):
-        st.json({
-            "group_id": group_id,
-            "total": total,
-            "evaluation": result
-        })
-
-else:
-    st.info("Lengkapi informasi siswa dan menu terlebih dahulu.")
+    st.subheader("📊 Hasil Evaluasi")
+    st.json({
+        "group_id": group_id,
+        "total": total,
+        "evaluation": result
+    })
