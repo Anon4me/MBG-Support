@@ -3,7 +3,7 @@ import pandas as pd
 import uuid
 from collections import defaultdict
 
-st.set_page_config(page_title="AI Validasi Menu MBG", layout="wide")
+st.set_page_config(page_title="MBG Support", layout="wide")
 
 MBG_STANDARD = {
     "SD_AWAL":  {"min_energy": 450, "max_energy": 600, "min_protein": 18, "min_animal": 8,  "min_fiber": 4, "min_carb": 75},
