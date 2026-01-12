@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import uuid
+from collections import defaultdict
 
 st.set_page_config(page_title="AI Validasi Menu MBG", layout="wide")
 
@@ -115,6 +116,19 @@ for category, options in MENU_OPTIONS.items():
                 })
 
 # porsi input
+def group_menu_by_category(menu_items):
+    grouped = defaultdict(list)
+    for m in menu_items:
+        grouped[m["category"]].append(m)
+    return grouped
+
+
+def avg_nutrient_per_100g(df, names, col):
+    rows = df[df["nama"].isin(names)]
+    if rows.empty:
+        return 0
+    return rows[col].mean()
+
 st.subheader("⚖️ Porsi")
 
 for item in st.session_state.menu_items:
@@ -163,6 +177,7 @@ if st.button("Validasi Menu"):
         "animal": int(animal_protein),
         "status": status
     }
+
 
 # output result
 if st.session_state.result:
