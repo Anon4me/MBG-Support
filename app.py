@@ -60,7 +60,7 @@ MENU_CATEGORIES = {
 # ===============================
 @st.cache_data
 def load_standar():
-    df = pd.read_csv("data/mbg_standar.csv", sep=";")
+    df = pd.read_csv("data/standar_mbg.csv", sep=";")
     return df
 
 # ===============================
