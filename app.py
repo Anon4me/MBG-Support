@@ -58,10 +58,45 @@ MENU_CATEGORIES = {
 # ===============================
 # DATA LOADER (FIXED)
 # ===============================
-@st.cache_data
-def load_standar():
-    df = pd.read_csv("data/standar_mbg.csv", sep=";")
-    return df
+def load():
+    data = {}
+
+    data["standar"] = pd.read_csv(
+        "data/standar_mbg.csv",
+        sep=";",
+        engine="python"
+    )
+
+    data["standar"].columns = (
+        data["standar"].columns
+        .str.strip()
+        .str.lower()
+    )
+
+    data["nutrition"] = pd.read_csv(
+        "data/clean_data.csv",
+        engine="python"
+    )
+
+    data["nutrition"].columns = (
+        data["nutrition"].columns
+        .str.strip()
+        .str.lower()
+    )
+
+    data["protein_category"] = pd.read_csv(
+        "data/category_protein.csv"
+    )
+
+    data["group"] = pd.read_csv(
+        "data/group.csv"
+    )
+
+    data["food_category"] = pd.read_csv(
+        "data/food_category.csv"
+    )
+
+    return data
 
 # ===============================
 # MBG LOGIC (FIXED TOTAL)
@@ -79,11 +114,12 @@ def resolve_group_id(jenjang, kelas):
 
 
 def get_mbg_standard(jenjang, kelas, std_df):
-    gid = resolve_group_id(jenjang, kelas)
-    row = std_df[std_df["group_id"] == gid]
+    gid = resolve_group_id(jenjang, kelas).lower()
+
+    row = std_df[std_df["group_id"].str.lower() == gid]
 
     if row.empty:
-        raise ValueError(f"Standar MBG tidak ditemukan untuk {gid}")
+        raise ValueError(f"Standar MBG tidak ditemukan untuk group_id: {gid}")
 
     return row.iloc[0]
 
@@ -193,7 +229,7 @@ if st.button("Validasi Menu", disabled=not can_validate):
     has_veg = any(i["category"] == "Sayuran" for i in st.session_state.menu_items)
     has_fruit = any(i["category"] == "Buah" for i in st.session_state.menu_items)
 
-    std_df = load_standar()
+    std_df = load()
     std = get_mbg_standard(info["jenjang"], info["kelas"], std_df)
 
     checks = [
