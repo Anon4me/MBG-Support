@@ -3,6 +3,9 @@ import pandas as pd
 import time
 import uuid
 
+# ===============================
+# PAGE CONFIG
+# ===============================
 st.set_page_config(page_title="AI Validasi Menu MBG", layout="wide")
 
 # ===============================
@@ -21,7 +24,7 @@ if "result" not in st.session_state:
     st.session_state.result = None
 
 # ===============================
-# CONSTANTS (UI TIDAK DIUBAH)
+# CONSTANTS (UI ASLI)
 # ===============================
 KELAS_OPTIONS = {
     "SD": [
@@ -56,8 +59,9 @@ MENU_CATEGORIES = {
 }
 
 # ===============================
-# DATA LOADER (FIXED)
+# DATA LOADER
 # ===============================
+@st.cache_data
 def load():
     data = {}
 
@@ -66,57 +70,52 @@ def load():
         sep=";",
         engine="python"
     )
+    data["standar"].columns = data["standar"].columns.str.strip().str.lower()
 
-    data["standar"].columns = (
-        data["standar"].columns
-        .str.strip()
-        .str.lower()
-    )
-
-    data["nutrition"] = pd.read_csv(
-        "data/clean_data.csv",
-        engine="python"
-    )
-
-    data["nutrition"].columns = (
-        data["nutrition"].columns
-        .str.strip()
-        .str.lower()
-    )
-
-    data["protein_category"] = pd.read_csv(
-        "data/category_protein.csv"
-    )
-
-    data["group"] = pd.read_csv(
-        "data/group.csv"
-    )
-
-    data["food_category"] = pd.read_csv(
-        "data/food_category_all.csv"
-    )
+    data["education"] = pd.read_csv("data/education.csv")
+    data["group"] = pd.read_csv("data/group.csv")
 
     return data
 
 # ===============================
-# MBG LOGIC (FIXED TOTAL)
+# MBG LOGIC (NO HARDCODE)
 # ===============================
-def resolve_group_id(jenjang, kelas):
-    if jenjang == "SD":
-        if any(k in kelas for k in ["I", "II", "III"]):
-            return "SD_AWAL"
-        return "SD_TINGGI"
-    if jenjang == "SMP":
-        return "SMP"
-    if jenjang == "SMA":
-        return "SMA"
-    raise ValueError("Group MBG tidak valid")
+ROMAN_MAP = {
+    "I": 1, "II": 2, "III": 3,
+    "IV": 4, "V": 5, "VI": 6,
+    "VII": 7, "VIII": 8, "IX": 9,
+    "X": 10, "XI": 11, "XII": 12
+}
 
+def extract_class_number(kelas_str):
+    kelas_str = kelas_str.upper()
+    for roman, num in ROMAN_MAP.items():
+        if roman in kelas_str:
+            return num
+    raise ValueError(f"Tidak bisa membaca kelas dari: {kelas_str}")
 
-def get_mbg_standard(jenjang, kelas, std_df):
-    gid = resolve_group_id(jenjang, kelas).lower()
+def resolve_group_id(jenjang, kelas, edu_df):
+    class_num = extract_class_number(kelas)
 
-    row = std_df[std_df["group_id"].str.lower() == gid]
+    row = edu_df[
+        (edu_df["level"] == jenjang) &
+        (edu_df["class_min"] <= class_num) &
+        (edu_df["class_max"] >= class_num)
+    ]
+
+    if row.empty:
+        raise ValueError(
+            f"group_id tidak ditemukan untuk {jenjang} kelas {class_num}"
+        )
+
+    return row.iloc[0]["group_id"]
+
+def get_mbg_standard(jenjang, kelas, data):
+    gid = resolve_group_id(jenjang, kelas, data["education"])
+
+    row = data["standar"][
+        data["standar"]["group_id"].str.upper() == gid.upper()
+    ]
 
     if row.empty:
         raise ValueError(f"Standar MBG tidak ditemukan untuk group_id: {gid}")
@@ -130,7 +129,7 @@ st.title("🍽️ AI Validasi Menu MBG")
 st.caption("Validasi otomatis menu sesuai standar gizi MBG")
 
 # ===============================
-# INFORMASI SISWA (DESIGN ASLI)
+# INFORMASI SISWA
 # ===============================
 st.subheader("👤 Informasi Siswa")
 
@@ -161,7 +160,7 @@ with col2:
         info["kelas"] = kelas
 
 # ===============================
-# MENU SELECTION (DESIGN ASLI)
+# MENU SELECTION
 # ===============================
 st.subheader("🍴 Pilihan Menu Makanan")
 
@@ -184,7 +183,7 @@ for category, options in MENU_CATEGORIES.items():
                 })
 
 # ===============================
-# PORTION CONTROL (DESIGN ASLI)
+# PORTION CONTROL
 # ===============================
 st.subheader("⚖️ Kontrol Porsi")
 
@@ -209,7 +208,7 @@ else:
         )
 
 # ===============================
-# VALIDATION (DESIGN ASLI)
+# VALIDATION
 # ===============================
 st.subheader("✨ AI Validasi Menu")
 
@@ -229,18 +228,18 @@ if st.button("Validasi Menu", disabled=not can_validate):
     has_veg = any(i["category"] == "Sayuran" for i in st.session_state.menu_items)
     has_fruit = any(i["category"] == "Buah" for i in st.session_state.menu_items)
 
-    std_df = load()
-    std = get_mbg_standard(info["jenjang"], info["kelas"], std_df)
+    data = load()
+    std = get_mbg_standard(info["jenjang"], info["kelas"], data)
 
     checks = [
         std["min_energy_kcal"] <= energi <= std["max_energy_kcal"],
         protein >= std["min_protein_g"],
         karbo >= std["min_carbohydrate_g"],
         serat >= std["min_fiber_g"],
-        has_protein,
-        has_carb,
-        has_veg,
-        has_fruit
+        has_protein if std["req_protein"] else True,
+        has_carb if std["req_carb"] else True,
+        has_veg if std["req_veg"] else True,
+        has_fruit if std["req_fruit"] else True
     ]
 
     status = "sesuai" if all(checks) else "tidak sesuai"
@@ -256,7 +255,7 @@ if st.button("Validasi Menu", disabled=not can_validate):
     st.session_state.validated = True
 
 # ===============================
-# OUTPUT (DESIGN ASLI)
+# OUTPUT
 # ===============================
 if st.session_state.validated:
     st.subheader("📊 Output Laporan Gizi")
